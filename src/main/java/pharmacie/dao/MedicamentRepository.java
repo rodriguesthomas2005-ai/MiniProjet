@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import pharmacie.entity.Medicament;
 
-// Cette interface sera auto-implémentée par Spring
-
 public interface MedicamentRepository extends JpaRepository<Medicament, Integer> {
     /**
      * Calcule le nombre d'unités vendues pour chaque médicament d'une catégorie donnée.
