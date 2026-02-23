@@ -18,7 +18,7 @@ ALTER TABLE Categorie ALTER COLUMN code RESTART WITH 11;
 
 -- Catégorie 1: Antalgiques et Antipyrétiques
 INSERT INTO MEDICAMENT (NOM, CATEGORIE_CODE, QUANTITE_PAR_UNITE, PRIX_UNITAIRE, UNITES_EN_STOCK, UNITES_COMMANDEES, NIVEAU_DE_REAPPRO, INDISPONIBLE, imageURL) VALUES
-('Paracétamol 2500mg', 1, 'Boîte de 16 comprimés', 2.50, 500, 0, 50, false, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400'),
+('Paracétamol 2500mg', 1, 'Boîte de 16 comprimés', 2.50, 11, 0, 10, false, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400'),
 ('Paracétamol 1000mg', 1, 'Boîte de 8 comprimés', 3.20, 350, 0, 40, false, 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400'),
 ('Ibuprofène 200mg', 1, 'Boîte de 20 comprimés', 3.80, 400, 0, 45, false, 'https://images.unsplash.com/photo-1550572017-edd951aa8f72?w=400'),
 ('Ibuprofène 400mg', 1, 'Boîte de 12 comprimés', 4.50, 320, 0, 35, false, 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400'),
