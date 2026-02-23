@@ -61,4 +61,7 @@ public class Categorie {
     @JsonIgnoreProperties("categories")
     private List<Fournisseur> fournisseurs = new ArrayList<>();
 
+	public String getNom() {
+        return this.libelle;
+    }
 }

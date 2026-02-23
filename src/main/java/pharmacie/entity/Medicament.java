@@ -1,6 +1,7 @@
 package pharmacie.entity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -47,6 +49,8 @@ public class Medicament {
 	 */
 	@ToString.Exclude
 	@PositiveOrZero
+	@Getter 
+	@Setter
 	private int unitesEnStock = 0;
 
 	/**
@@ -66,7 +70,10 @@ public class Medicament {
 	 */
 	@ToString.Exclude
 	@PositiveOrZero
+	@Getter 
+	@Setter
 	private int niveauDeReappro = 0;
+
 
 	/**
 	 * Indique si le médicament est indisponible
@@ -87,6 +94,10 @@ public class Medicament {
 	@JsonIgnore // On n'inclut pas les lignes quand on convertit le médicament en JSON
 	@OneToMany(mappedBy = "medicament", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
 	private List<Ligne> lignes = new LinkedList<>();
+
+	@ToString.Exclude
+	@ManyToMany(mappedBy = "medicaments")
+	private List<Fournisseur> fournisseurs = new ArrayList<>();
 
 
 }

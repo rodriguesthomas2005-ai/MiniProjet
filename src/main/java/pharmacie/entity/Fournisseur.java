@@ -10,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +27,7 @@ public class Fournisseur {
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Setter(AccessLevel.NONE) // la clé est autogénérée par la BD, On ne veut pas de "setter"
-	private Integer id_fournisseur = null;
+	private final Integer id_fournisseur = null;
 
     @NonNull // Lombok, génère une vérification dans le constructeur par défaut
 	@Column(unique=true, length = 255)
@@ -39,4 +41,13 @@ public class Fournisseur {
 	@ManyToMany(mappedBy = "fournisseurs")
     @JsonIgnoreProperties("fournisseurs") 
     private List<Categorie> categories = new ArrayList<>();
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(
+        name = "fournisseur_medicament",
+        joinColumns = @JoinColumn(name = "fournisseur_id"),
+        inverseJoinColumns = @JoinColumn(name = "medicament_id")
+    )
+    private List<Medicament> medicaments = new ArrayList<>();
 }
