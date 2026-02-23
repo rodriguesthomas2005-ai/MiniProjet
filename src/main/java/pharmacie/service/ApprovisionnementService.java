@@ -24,7 +24,7 @@ public class ApprovisionnementService {
 
     public void gererReapprovisionnement() throws MessagingException {
         // Étape 1 : Trouver les médicaments à réapprovisionner
-        List<Medicament> medicamentsAReapprovisionner = medicamentRepository.findByUnitesEnStockLessThanNiveauDeReappro();
+        List<Medicament> medicamentsAReapprovisionner = medicamentRepository.findMedicamentsToReorder();
 
         // Étape 2 : Regrouper les médicaments par fournisseur
         Map<Fournisseur, List<Medicament>> medicamentsParFournisseur = medicamentsAReapprovisionner.stream()
