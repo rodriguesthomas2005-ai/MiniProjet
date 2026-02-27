@@ -6,9 +6,10 @@ import java.util.List;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import pharmacie.dao.CommandeRepository;
@@ -28,14 +29,17 @@ public class CommandeService {
     private final DispensaireRepository dispensaireDao;
     private final LigneRepository ligneDao;
     private final MedicamentRepository medicamentDao;
+    private final ApprovisionnementService approvisionnementService;
 
     // @Autowired
     // Spring initialisera automatiquement ces paramètres
-    public CommandeService(CommandeRepository commandeDao, DispensaireRepository dispensaireDao, LigneRepository ligneDao, MedicamentRepository medicamentDao) {
+    public CommandeService(CommandeRepository commandeDao, DispensaireRepository dispensaireDao, LigneRepository ligneDao, MedicamentRepository medicamentDao,
+                            ApprovisionnementService approvisionnementService) {
         this.commandeDao = commandeDao;
         this.dispensaireDao = dispensaireDao;
         this.ligneDao = ligneDao;
         this.medicamentDao = medicamentDao;
+        this.approvisionnementService = approvisionnementService;
     }
 
     /**
@@ -195,6 +199,15 @@ public class CommandeService {
             // Les médicaments de la commande ne sont plus "en commande"
             medicament.setUnitesCommandees(medicament.getUnitesCommandees() - ligne.getQuantite());
         });
+
+        // après modification des stocks on vérifie si un réapprovisionnement est nécessaire
+        try {
+            approvisionnementService.gererReapprovisionnement();
+        } catch (MessagingException e) {
+            // on logue l'erreur sans interrompre le flux métier
+            log.error("Erreur lors de l'envoi des emails de réapprovisionnement", e);
+        }
+
         return commande;
     }
 

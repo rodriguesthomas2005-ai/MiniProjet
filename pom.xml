@@ -97,6 +97,14 @@
             </exclusions>
         </dependency>
 
+        <!-- GreenMail for testing SMTP interactions -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>1.6.8</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>

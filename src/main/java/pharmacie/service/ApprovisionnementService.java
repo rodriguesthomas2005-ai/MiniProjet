@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -22,6 +23,7 @@ public class ApprovisionnementService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Transactional
     public void gererReapprovisionnement() throws MessagingException {
         // Étape 1 : Trouver les médicaments à réapprovisionner
         List<Medicament> medicamentsAReapprovisionner = medicamentRepository.findMedicamentsToReorder();
