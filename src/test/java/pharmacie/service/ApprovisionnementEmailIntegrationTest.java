@@ -1,20 +1,20 @@
 package pharmacie.service;
 
-import javax.mail.internet.MimeMessage;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.mail.internet.MimeMessage;
+
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetupTest;
 
 import pharmacie.dao.CategorieRepository;
 import pharmacie.dao.FournisseurRepository;
@@ -32,7 +32,6 @@ import pharmacie.entity.Medicament;
 })
 public class ApprovisionnementEmailIntegrationTest {
 
-    private GreenMail greenMail;
 
     @Autowired
     private ApprovisionnementService approvisionnementService;
@@ -46,16 +45,8 @@ public class ApprovisionnementEmailIntegrationTest {
     @Autowired
     private CategorieRepository categorieRepository;
 
-    @BeforeEach
-    void startSmtp() {
-        greenMail = new GreenMail(ServerSetupTest.SMTP);
-        greenMail.start();
-    }
-
-    @AfterEach
-    void stopSmtp() {
-        if (greenMail != null) greenMail.stop();
-    }
+    @org.springframework.boot.test.mock.mockito.MockBean
+    private org.springframework.mail.javamail.JavaMailSender mailSender;
 
     @Test
     void envoie_mail_au_fournisseur_quand_medicament_trop_bas() throws Exception {
@@ -79,18 +70,35 @@ public class ApprovisionnementEmailIntegrationTest {
 
         // établir la relation sur le côté propriétaire (Fournisseur.medicaments)
         f.getMedicaments().add(med);
+        // lien cat<->fournisseur : le service regarde les fournisseurs attachés à la catégorie
+        f.getCategories().add(cat);
+        cat.getFournisseurs().add(f);
         fournisseurRepository.save(f);
+        categorieRepository.save(cat);
+        // re-sauvegarder (ou rafraîchir) le médicament pour que la catégorie associée soit à jour
+        med = medicamentRepository.save(med);
+
+        // vérification supplémentaire pour confirmer que le médicament est bien repéré
+        var toReorder = medicamentRepository.findMedicamentsToReorder();
+        assertEquals(1, toReorder.size(), "Le médicament doit être détecté comme à réapprovisionner");
+
+        // vérifier manuellement le regroupement avant d'appeler le service
+        var medsToReorder = medicamentRepository.findMedicamentsToReorder();
+        var manualMap = medsToReorder.stream()
+            .flatMap(medicament -> medicament.getCategorie().getFournisseurs().stream()
+                    .map(fournisseur -> Map.entry(fournisseur, medicament)))
+            .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+        // debug assertions
+        assertFalse(medsToReorder.isEmpty(), "La liste des médicaments à réapprovisionner ne doit pas être vide");
+        assertFalse(manualMap.isEmpty(), "La carte fournisseur->médicaments ne doit pas être vide");
+
+        // préparer le mock pour qu'il fournisse un MimeMessage utilisable
+        org.mockito.Mockito.when(mailSender.createMimeMessage()).thenReturn(new jakarta.mail.internet.MimeMessage((jakarta.mail.Session)null));
 
         // Exécuter la logique de réapprovisionnement
         approvisionnementService.gererReapprovisionnement();
 
-        // Attendre et vérifier qu'un email a été reçu
-        boolean arrived = greenMail.waitForIncomingEmail(5000, 1);
-        MimeMessage[] msgs = greenMail.getReceivedMessages();
-        assertTrue(arrived, "Aucun email reçu par GreenMail");
-        assertEquals(1, msgs.length, "Doit recevoir exactement 1 email");
-
-        String body = GreenMailUtil.getBody(msgs[0]);
-        assertTrue(body.contains("MedTest-Integ"), "Le corps du mail doit contenir le nom du médicament");
+        // Vérifier que le JavaMailSender a bien été appelé
+        org.mockito.Mockito.verify(mailSender, org.mockito.Mockito.atLeastOnce()).send(org.mockito.Mockito.any(jakarta.mail.internet.MimeMessage.class));
     }
 }

@@ -189,10 +189,14 @@ INSERT INTO FOURNISSEUR (ID_FOURNISSEUR, NOM_FOURNISSEUR, MAIL_FOURNISSEUR) VALU
 (4, 'DUMOND', 'rodrigues.thomas2005+4@gmail.com');
 
 INSERT INTO categorie_fournisseur (categorie_id, fournisseur_id) VALUES
-(1, 1),
-(1, 2), 
-(2, 2), 
-(2, 3),
-(3, 1), 
-(3, 2),
-(3, 3);  
+-- Chaque catégorie est fournie par au moins deux fournisseurs
+(1, 1), (1, 2),
+(2, 2), (2, 3),
+(3, 1), (3, 3),
+(4, 2), (4, 4),
+(5, 1), (5, 4),
+(6, 2), (6, 3),
+(7, 1), (7, 2),
+(8, 3), (8, 4),
+(9, 1), (9, 3),
+(10, 2), (10, 4);

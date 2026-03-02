@@ -26,12 +26,9 @@ class CommandeServiceReapproTest {
             ApprovisionnementService mock = org.mockito.Mockito.mock(ApprovisionnementService.class);
             return mock;
         }
-
-        @Bean
-        public org.springframework.mail.javamail.JavaMailSender javaMailSender() {
-            // mock vide pour injection
-            return org.mockito.Mockito.mock(org.springframework.mail.javamail.JavaMailSender.class);
-        }
+        // Le bean JavaMailSender est créé par MailConfig dans l'application normale.
+        // Il n'est pas nécessaire dans ce test (ApprovisionnementService est mocké).
+        // Nous ne déclarons donc pas de bean ici pour éviter un conflit de définition.
     }
 
     @Autowired

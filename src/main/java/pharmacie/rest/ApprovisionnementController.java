@@ -25,4 +25,17 @@ public class ApprovisionnementController {
             return ResponseEntity.status(500).body("Erreur lors de l'envoi des emails : " + e.getMessage());
         }
     }
+
+    @GetMapping("/test-mail")
+    public ResponseEntity<String> testMail(String to) {
+        if (to == null || to.isBlank()) {
+            return ResponseEntity.badRequest().body("Paramètre 'to' requis");
+        }
+        try {
+            approvisionnementService.envoyerMailTest(to);
+            return ResponseEntity.ok("Mail de test envoyé à " + to);
+        } catch (MessagingException e) {
+            return ResponseEntity.status(500).body("Erreur envoi mail de test : " + e.getMessage());
+        }
+    }
 }
