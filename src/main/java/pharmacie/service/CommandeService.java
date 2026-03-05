@@ -18,6 +18,7 @@ import pharmacie.dao.LigneRepository;
 import pharmacie.dao.MedicamentRepository;
 import pharmacie.entity.Commande;
 import pharmacie.entity.Ligne;
+import pharmacie.entity.Medicament;
 
 @Slf4j
 @Service
@@ -237,5 +238,36 @@ public class CommandeService {
     } catch (MessagingException e) {
         log.error("Erreur lors de l'envoi des emails de réapprovisionnement suite à modification de quantité", e);
     }
-}
+    }
+    @Transactional
+public Ligne modifierQuantite(int ligneId, @Positive int nouvelleQuantite) {
+    log.info("Service : Modification de la quantité pour la ligne {} -> {}", ligneId, nouvelleQuantite);
+    
+
+    Ligne ligne = ligneDao.findById(ligneId).orElseThrow();
+    Medicament m = ligne.getMedicament();
+    
+
+    int ancienneQuantite = ligne.getQuantite();
+    int difference = nouvelleQuantite - ancienneQuantite;
+    
+
+    if (m.getUnitesEnStock() < m.getUnitesCommandees() + difference) {
+        throw new IllegalStateException("Pas assez de stock pour cette modification");
+    }
+
+    ligne.setQuantite(nouvelleQuantite);
+    m.setUnitesCommandees(m.getUnitesCommandees() + difference);
+    
+
+    Ligne resultat = ligneDao.save(ligne);
+
+    try {
+        approvisionnementService.gererReapprovisionnement();
+    } catch (Exception e) {
+        log.error("Erreur alerte mail (asynchrone) : {}", e.getMessage());
+    }
+
+    return resultat;
+    }
 }
