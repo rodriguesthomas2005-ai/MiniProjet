@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class ApprovisionnementService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Async
     @Transactional
     public void gererReapprovisionnement() throws MessagingException {
         // Étape 1 : Trouver les médicaments à réapprovisionner
@@ -64,10 +66,7 @@ public class ApprovisionnementService {
         }
     }
 
-    /**
-     * Envoie un simple message "hello world" à l'adresse fournie, utile pour tester
-     * que l'infrastructure mail est correctement configurée.
-     */
+
     public void envoyerMailTest(String destinataire) throws MessagingException {
         MimeMessage msg = mailSender.createMimeMessage();
         var helper = new MimeMessageHelper(msg, false);
@@ -110,7 +109,7 @@ public class ApprovisionnementService {
 
         contenu.append("\nMerci de nous transmettre un devis pour ces produits.\nCordialement,\nVotre équipe de gestion.");
 
-        // Ajout du contenu à l'email
+
         helper.setText(Objects.requireNonNull(contenu.toString()), false);
         mailSender.send(message);
     }

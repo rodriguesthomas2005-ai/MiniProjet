@@ -67,9 +67,7 @@ public interface MedicamentRepository extends JpaRepository<Medicament, Integer>
      """)
     List<Medicament> medicamentsDisponibles();
 
-    // Trouver les médicaments à réapprovisionner
-    // et charger en même temps les fournisseurs de leur catégorie pour éviter
-    // les problèmes de lazy loading lorsqu'on parcourt la collection plus tard.
+
     @Query("SELECT m FROM Medicament m " +
            "JOIN FETCH m.categorie c " +
            "LEFT JOIN FETCH c.fournisseurs " +

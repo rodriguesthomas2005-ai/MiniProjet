@@ -132,6 +132,7 @@ public class CommandeService {
         // Inutile de sauvegarder le médicament, les entités modifiées par une transaction
         // sont automatiquement sauvegardées à la fin de la transaction
         // On enregistre la ligne de commande (génère la clé)
+        declencherReapproSiBesoin();
         return ligneDao.save(ligne);
     }
 
@@ -162,7 +163,9 @@ public class CommandeService {
             // On décrémente la quantité commandée pour le médicament
             medicament.setUnitesCommandees(medicament.getUnitesCommandees() - ligne.getQuantite());
             // On supprime la ligne
+            
             ligneDao.delete(ligne);
+            declencherReapproSiBesoin();
             // Inutile de sauvegarder le médicament, les entités modifiées par une transaction
             // sont automatiquement sauvegardées à la fin de la transaction
         });
@@ -227,4 +230,12 @@ public class CommandeService {
     public List<Commande> getCommandeEnCoursPour(String dispensaireCode) {
         return commandeDao.commandesEnCoursPour(dispensaireCode);
     }
+
+    private void declencherReapproSiBesoin() {
+    try {
+        approvisionnementService.gererReapprovisionnement();
+    } catch (MessagingException e) {
+        log.error("Erreur lors de l'envoi des emails de réapprovisionnement suite à modification de quantité", e);
+    }
+}
 }
